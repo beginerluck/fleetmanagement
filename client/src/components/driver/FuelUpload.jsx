@@ -3,22 +3,13 @@ import { Link } from 'react-router-dom'
 import api from '../../api/api'
 import { useAuth } from '../../context/useAuth'
 import FileCapture from '../shared/FileCapture'
-
-const costCentreOptions = ['Operations', 'Administration', 'Sales', 'Maintenance', 'Executive']
-const fuelTypeOptions = ['Unleaded 91', 'Unleaded 95', 'Unleaded 98', 'Diesel', 'LPG', 'Electric (charge)']
-
-function formatDate(value) {
-  if (!value) return '—'
-  return new Intl.DateTimeFormat('en-AU').format(new Date(`${value}T00:00:00`))
-}
-
-function formatCurrency(value) {
-  return new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(Number(value || 0))
-}
-
-function buildReference(id) {
-  return `FR-${`${id}`.padStart(6, '0')}`
-}
+import {
+  buildFuelReference,
+  costCentreOptions,
+  formatAuDate,
+  formatAudCurrency,
+  fuelTypeOptions,
+} from '../../utils/fuel'
 
 function todayValue() {
   return new Date().toISOString().slice(0, 10)
@@ -28,7 +19,6 @@ export default function FuelUpload() {
   const { user } = useAuth()
   const [step, setStep] = useState(1)
   const [receiptFile, setReceiptFile] = useState(null)
-  const [previewUrl, setPreviewUrl] = useState('')
   const [fileError, setFileError] = useState('')
   const [loadError, setLoadError] = useState('')
   const [submitError, setSubmitError] = useState('')
@@ -50,6 +40,8 @@ export default function FuelUpload() {
     station: '',
     notes: '',
   })
+
+  const previewUrl = useMemo(() => (receiptFile ? URL.createObjectURL(receiptFile) : ''), [receiptFile])
 
   useEffect(() => {
     const loadOptions = async () => {
@@ -82,15 +74,9 @@ export default function FuelUpload() {
   }, [user.id])
 
   useEffect(() => {
-    if (!receiptFile) {
-      setPreviewUrl('')
-      return undefined
-    }
-
-    const nextPreviewUrl = URL.createObjectURL(receiptFile)
-    setPreviewUrl(nextPreviewUrl)
-    return () => URL.revokeObjectURL(nextPreviewUrl)
-  }, [receiptFile])
+    if (!previewUrl) return undefined
+    return () => URL.revokeObjectURL(previewUrl)
+  }, [previewUrl])
 
   const tripOptions = useMemo(
     () => trips.filter((trip) => String(trip.vehicle_id) === String(form.vehicle_id)),
@@ -171,7 +157,6 @@ export default function FuelUpload() {
   const resetFlow = () => {
     setStep(1)
     setReceiptFile(null)
-    setPreviewUrl('')
     setFileError('')
     setSubmitError('')
     setUploadProgress(0)
@@ -198,7 +183,7 @@ export default function FuelUpload() {
         <div className="rounded-3xl bg-white p-6 text-center shadow-xl">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl">✅</div>
           <h2 className="mt-4 text-2xl font-bold text-emerald-700">Receipt submitted successfully!</h2>
-          <p className="mt-2 text-slate-600">Reference number: <span className="font-semibold">{buildReference(successRecord.id)}</span></p>
+          <p className="mt-2 text-slate-600">Reference number: <span className="font-semibold">{buildFuelReference(successRecord.id)}</span></p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <button type="button" onClick={resetFlow} className="rounded-xl bg-brand-500 px-5 py-3 font-semibold text-white">
               Upload Another
@@ -282,8 +267,8 @@ export default function FuelUpload() {
               >
                 <option value="">Not linked to a trip</option>
                 {tripOptions.map((trip) => (
-                  <option key={trip.id} value={trip.id}>
-                    {(trip.destination || 'Trip')} — {formatDate((trip.start_time || '').slice(0, 10))}
+                    <option key={trip.id} value={trip.id}>
+                    {(trip.destination || 'Trip')} — {formatAuDate((trip.start_time || '').slice(0, 10))}
                   </option>
                 ))}
               </select>
@@ -355,10 +340,10 @@ export default function FuelUpload() {
             <div className="rounded-2xl bg-slate-50 p-4">
               <dl className="grid gap-3 text-sm sm:grid-cols-2">
                 <SummaryItem label="Vehicle" value={selectedVehicle ? `${selectedVehicle.registration_number} — ${selectedVehicle.make} ${selectedVehicle.model}` : '—'} />
-                <SummaryItem label="Trip" value={selectedTrip ? `${selectedTrip.destination || 'Trip'} — ${formatDate((selectedTrip.start_time || '').slice(0, 10))}` : 'Not linked'} />
-                <SummaryItem label="Date" value={formatDate(form.date)} />
+                <SummaryItem label="Trip" value={selectedTrip ? `${selectedTrip.destination || 'Trip'} — ${formatAuDate((selectedTrip.start_time || '').slice(0, 10))}` : 'Not linked'} />
+                <SummaryItem label="Date" value={formatAuDate(form.date)} />
                 <SummaryItem label="Litres" value={form.litres} />
-                <SummaryItem label="Cost" value={formatCurrency(form.cost)} />
+                <SummaryItem label="Cost" value={formatAudCurrency(form.cost)} />
                 <SummaryItem label="Odometer" value={`${form.odometer_reading} km`} />
                 <SummaryItem label="Cost Centre" value={form.cost_centre} />
                 <SummaryItem label="Fuel Type" value={form.fuel_type} />

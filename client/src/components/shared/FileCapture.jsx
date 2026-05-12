@@ -1,19 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import Webcam from 'react-webcam'
-
-export const MAX_RECEIPT_FILE_SIZE = 10 * 1024 * 1024
-export const ALLOWED_RECEIPT_TYPES = ['image/jpeg', 'image/png', 'application/pdf']
-
-export function validateReceiptFile(file) {
-  if (!file) return 'Please select a receipt image or PDF.'
-  if (!ALLOWED_RECEIPT_TYPES.includes(file.type)) {
-    return 'Only JPEG, PNG, and PDF receipts are supported.'
-  }
-  if (file.size > MAX_RECEIPT_FILE_SIZE) {
-    return 'Receipt files must be 10MB or smaller.'
-  }
-  return ''
-}
+import { validateReceiptFile } from '../../utils/fuel'
 
 function dataUrlToFile(dataUrl) {
   const [header, body] = dataUrl.split(',')

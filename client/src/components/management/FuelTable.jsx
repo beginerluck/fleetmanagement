@@ -1,11 +1,4 @@
-function formatDate(value) {
-  if (!value) return '—'
-  return new Intl.DateTimeFormat('en-AU').format(new Date(`${value}T00:00:00`))
-}
-
-function formatCurrency(value) {
-  return new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(Number(value || 0))
-}
+import { formatAuDate, formatAudCurrency } from '../../utils/fuel'
 
 const columns = [
   { key: 'date', label: 'Date' },
@@ -49,12 +42,12 @@ export default function FuelTable({ records, sortBy, sortOrder, onSort, onEdit, 
           ) : (
             records.map((record) => (
               <tr key={record.id} className="border-t border-slate-100 align-top">
-                <td className="whitespace-nowrap px-4 py-3">{formatDate(record.date)}</td>
+                <td className="whitespace-nowrap px-4 py-3">{formatAuDate(record.date)}</td>
                 <td className="px-4 py-3">{record.vehicle ? `${record.vehicle.registration_number} — ${record.vehicle.make} ${record.vehicle.model}` : '—'}</td>
                 <td className="whitespace-nowrap px-4 py-3">{record.driver?.name || '—'}</td>
                 <td className="whitespace-nowrap px-4 py-3">{Number(record.litres || 0).toFixed(2)}</td>
-                <td className="whitespace-nowrap px-4 py-3">{formatCurrency(record.cost)}</td>
-                <td className="whitespace-nowrap px-4 py-3">{formatCurrency(record.cost_per_litre)}</td>
+                <td className="whitespace-nowrap px-4 py-3">{formatAudCurrency(record.cost)}</td>
+                <td className="whitespace-nowrap px-4 py-3">{formatAudCurrency(record.cost_per_litre)}</td>
                 <td className="whitespace-nowrap px-4 py-3">{record.odometer_reading?.toLocaleString?.() || record.odometer_reading}</td>
                 <td className="whitespace-nowrap px-4 py-3">{record.cost_centre}</td>
                 <td className="whitespace-nowrap px-4 py-3">{record.fuel_type}</td>

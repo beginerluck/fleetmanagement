@@ -1,11 +1,4 @@
-import api from '../../api/api'
-
-export function resolveReceiptUrl(receiptUrl) {
-  if (!receiptUrl) return ''
-  if (/^https?:\/\//.test(receiptUrl)) return receiptUrl
-  const origin = api.defaults.baseURL.replace(/\/api\/?$/, '')
-  return `${origin}${receiptUrl.startsWith('/') ? '' : '/'}${receiptUrl}`
-}
+import { resolveReceiptUrl } from '../../utils/fuel'
 
 export default function ReceiptModal({ record, onClose }) {
   if (!record) return null

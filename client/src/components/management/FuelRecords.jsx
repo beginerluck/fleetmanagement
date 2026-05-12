@@ -1,8 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import api from '../../api/api'
 import FuelTable from './FuelTable'
 import ReceiptModal from '../shared/ReceiptModal'
-import { validateReceiptFile } from '../shared/FileCapture'
+import {
+  costCentreOptions,
+  formatAuDate,
+  formatAudCurrency,
+  fuelTypeOptions,
+  validateReceiptFile,
+} from '../../utils/fuel'
 
 const emptyFilters = {
   vehicleId: '',
@@ -11,18 +17,6 @@ const emptyFilters = {
   fuelType: '',
   dateFrom: '',
   dateTo: '',
-}
-
-const costCentres = ['Operations', 'Administration', 'Sales', 'Maintenance', 'Executive']
-const fuelTypes = ['Unleaded 91', 'Unleaded 95', 'Unleaded 98', 'Diesel', 'LPG', 'Electric (charge)']
-
-function formatCurrency(value) {
-  return new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(Number(value || 0))
-}
-
-function formatDate(value) {
-  if (!value) return '—'
-  return new Intl.DateTimeFormat('en-AU').format(new Date(`${value}T00:00:00`))
 }
 
 function defaultFormState() {
@@ -34,8 +28,8 @@ function defaultFormState() {
     litres: '',
     cost: '',
     odometer_reading: '',
-    cost_centre: costCentres[0],
-    fuel_type: fuelTypes[0],
+    cost_centre: costCentreOptions[0],
+    fuel_type: fuelTypeOptions[0],
     station: '',
     notes: '',
     receipt: null,
@@ -48,7 +42,7 @@ export default function FuelRecords() {
   const [records, setRecords] = useState([])
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 })
   const [summary, setSummary] = useState({ total_cost: 0, total_litres: 0, avg_cost_per_litre: 0, record_count: 0 })
-  const [options, setOptions] = useState({ vehicles: [], drivers: [], costCentres, fuelTypes })
+  const [options, setOptions] = useState({ vehicles: [], drivers: [], costCentres: costCentreOptions, fuelTypes: fuelTypeOptions })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [sortBy, setSortBy] = useState('date')
@@ -64,7 +58,7 @@ export default function FuelRecords() {
   const month = new Date().getMonth() + 1
   const year = new Date().getFullYear()
 
-  const loadRecords = async (page = pagination.page, nextFilters = filters, nextSortBy = sortBy, nextSortOrder = sortOrder) => {
+  const loadRecords = useCallback(async (page = 1, nextFilters = emptyFilters, nextSortBy = 'date', nextSortOrder = 'desc') => {
     try {
       setLoading(true)
       setError('')
@@ -79,28 +73,28 @@ export default function FuelRecords() {
       })
       setRecords(data.data.records || [])
       setPagination(data.data.pagination)
-      setOptions(data.data.filters || { vehicles: [], drivers: [], costCentres, fuelTypes })
+      setOptions(data.data.filters || { vehicles: [], drivers: [], costCentres: costCentreOptions, fuelTypes: fuelTypeOptions })
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Unable to load fuel records.')
       setRecords([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const loadSummary = async () => {
+  const loadSummary = useCallback(async () => {
     try {
       const { data } = await api.get('/fuel/summary', { params: { month, year } })
       setSummary(data.data)
     } catch {
       setSummary({ total_cost: 0, total_litres: 0, avg_cost_per_litre: 0, record_count: 0 })
     }
-  }
+  }, [month, year])
 
   useEffect(() => {
-    loadRecords(1, filters, sortBy, sortOrder)
+    loadRecords(1, emptyFilters, 'date', 'desc')
     loadSummary()
-  }, [])
+  }, [loadRecords, loadSummary])
 
   useEffect(() => {
     if (!formOpen || !formState.driver_id) {
@@ -125,13 +119,10 @@ export default function FuelRecords() {
     loadTrips()
   }, [formOpen, formState.driver_id, formState.vehicle_id])
 
-  const vehicleOptions = options.vehicles || []
-  const driverOptions = options.drivers || []
+  const vehicleOptions = options.vehicles ?? []
+  const driverOptions = options.drivers ?? []
 
-  const selectedVehicle = useMemo(
-    () => vehicleOptions.find((vehicle) => String(vehicle.id) === String(formState.vehicle_id)),
-    [formState.vehicle_id, vehicleOptions],
-  )
+  const selectedVehicle = vehicleOptions.find((vehicle) => String(vehicle.id) === String(formState.vehicle_id))
 
   const openCreateModal = () => {
     setModalMode('create')
@@ -150,8 +141,8 @@ export default function FuelRecords() {
       litres: record.litres ?? '',
       cost: record.cost ?? '',
       odometer_reading: record.odometer_reading ?? '',
-      cost_centre: record.cost_centre || costCentres[0],
-      fuel_type: record.fuel_type || fuelTypes[0],
+      cost_centre: record.cost_centre || costCentreOptions[0],
+      fuel_type: record.fuel_type || fuelTypeOptions[0],
       station: record.station || '',
       notes: record.notes || '',
       receipt: null,
@@ -262,7 +253,7 @@ export default function FuelRecords() {
   }
 
   const deleteRecord = async (record) => {
-    const confirmed = window.confirm(`Delete fuel record from ${formatDate(record.date)} for ${record.station}?`)
+    const confirmed = window.confirm(`Delete fuel record from ${formatAuDate(record.date)} for ${record.station}?`)
     if (!confirmed) return
     try {
       await api.delete(`/fuel/${record.id}`)
@@ -293,9 +284,9 @@ export default function FuelRecords() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard title="Total Fuel Spend MTD" value={formatCurrency(summary.total_cost)} />
+        <KpiCard title="Total Fuel Spend MTD" value={formatAudCurrency(summary.total_cost)} />
         <KpiCard title="Total Litres MTD" value={Number(summary.total_litres || 0).toFixed(2)} />
-        <KpiCard title="Average Cost per Litre MTD" value={formatCurrency(summary.avg_cost_per_litre)} />
+        <KpiCard title="Average Cost per Litre MTD" value={formatAudCurrency(summary.avg_cost_per_litre)} />
         <KpiCard title="Number of Receipts This Month" value={summary.record_count || 0} />
       </div>
 
@@ -315,11 +306,11 @@ export default function FuelRecords() {
           </SelectField>
           <SelectField label="Cost Centre" value={draftFilters.costCentre} onChange={(value) => setDraftFilters((current) => ({ ...current, costCentre: value }))}>
             <option value="">All cost centres</option>
-            {costCentres.map((option) => <option key={option} value={option}>{option}</option>)}
+            {costCentreOptions.map((option) => <option key={option} value={option}>{option}</option>)}
           </SelectField>
           <SelectField label="Fuel Type" value={draftFilters.fuelType} onChange={(value) => setDraftFilters((current) => ({ ...current, fuelType: value }))}>
             <option value="">All fuel types</option>
-            {fuelTypes.map((option) => <option key={option} value={option}>{option}</option>)}
+            {fuelTypeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
           </SelectField>
           <InputField label="From" type="date" value={draftFilters.dateFrom} onChange={(value) => setDraftFilters((current) => ({ ...current, dateFrom: value }))} />
           <InputField label="To" type="date" value={draftFilters.dateTo} onChange={(value) => setDraftFilters((current) => ({ ...current, dateTo: value }))} />
@@ -382,17 +373,17 @@ export default function FuelRecords() {
               </SelectField>
               <SelectField label="Trip" value={formState.trip_id} onChange={(value) => setFormState((current) => ({ ...current, trip_id: value }))}>
                 <option value="">Not linked to a trip</option>
-                {formTrips.map((trip) => <option key={trip.id} value={trip.id}>{trip.destination || 'Trip'} — {formatDate((trip.start_time || '').slice(0, 10))}</option>)}
+                {formTrips.map((trip) => <option key={trip.id} value={trip.id}>{trip.destination || 'Trip'} — {formatAuDate((trip.start_time || '').slice(0, 10))}</option>)}
               </SelectField>
               <InputField label="Date" type="date" value={formState.date} error={formErrors.date} onChange={(value) => setFormState((current) => ({ ...current, date: value }))} />
               <InputField label="Litres" type="number" value={formState.litres} error={formErrors.litres} onChange={(value) => setFormState((current) => ({ ...current, litres: value }))} step="0.01" min="0" />
               <InputField label="Cost (AUD $)" type="number" value={formState.cost} error={formErrors.cost} onChange={(value) => setFormState((current) => ({ ...current, cost: value }))} step="0.01" min="0" />
               <InputField label="Odometer" type="number" value={formState.odometer_reading} error={formErrors.odometer_reading} onChange={(value) => setFormState((current) => ({ ...current, odometer_reading: value }))} min="0" />
               <SelectField label="Cost Centre" value={formState.cost_centre} error={formErrors.cost_centre} onChange={(value) => setFormState((current) => ({ ...current, cost_centre: value }))}>
-                {costCentres.map((option) => <option key={option} value={option}>{option}</option>)}
+                {costCentreOptions.map((option) => <option key={option} value={option}>{option}</option>)}
               </SelectField>
               <SelectField label="Fuel Type" value={formState.fuel_type} error={formErrors.fuel_type} onChange={(value) => setFormState((current) => ({ ...current, fuel_type: value }))}>
-                {fuelTypes.map((option) => <option key={option} value={option}>{option}</option>)}
+                {fuelTypeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
               </SelectField>
               <InputField label="Station" value={formState.station} error={formErrors.station} onChange={(value) => setFormState((current) => ({ ...current, station: value }))} />
               <label className="block sm:col-span-2">
