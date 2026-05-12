@@ -82,12 +82,13 @@ export default function FuelUpload() {
 
   const onSubmit = async (event) => {
     event.preventDefault()
+    if (redirectTimeoutRef.current) clearTimeout(redirectTimeoutRef.current)
     setSaving(true)
     setError('')
     setSuccess('')
     try {
       const payload = {
-        vehicle_id: Number(form.vehicle_id),
+        vehicle_id: form.vehicle_id === '' ? null : Number(form.vehicle_id),
         trip_id: form.trip_id ? Number(form.trip_id) : null,
         date: form.date,
         litres: form.litres === '' ? null : Number(form.litres),
@@ -99,7 +100,6 @@ export default function FuelUpload() {
       const { data } = await api.post('/fuel-records', payload)
       if (!data.success) throw new Error(data.message || 'Unable to save fuel record')
       setSuccess('Fuel receipt saved successfully.')
-      if (redirectTimeoutRef.current) clearTimeout(redirectTimeoutRef.current)
       redirectTimeoutRef.current = setTimeout(() => navigate('/driver/dashboard'), SUCCESS_REDIRECT_DELAY_MILLISECONDS)
     } catch (saveError) {
       setError(saveError.response?.data?.message || saveError.message || 'Unable to save fuel record')

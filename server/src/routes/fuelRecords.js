@@ -35,8 +35,8 @@ router.post('/', requireAuth, async (req, res, next) => {
     if (linkedVehicleId === null) {
       return res.status(400).json({ success: false, message: 'vehicle_id is required' })
     }
-    if (!Number.isInteger(linkedVehicleId)) {
-      return res.status(400).json({ success: false, message: 'vehicle_id must be a valid integer' })
+    if (!Number.isInteger(linkedVehicleId) || linkedVehicleId <= 0) {
+      return res.status(400).json({ success: false, message: 'vehicle_id must be a positive integer' })
     }
 
     const date = req.body.date
