@@ -39,15 +39,16 @@ export default function ManagementDashboard() {
               </section>
             ))}
           </div>
-        </main>
+          <p className="mt-3 text-sm text-slate-500">Review uploaded receipts, audit spend, and export monthly fuel reports.</p>
+        </section>
       </div>
-    </div>
+    </>
   )
 }
 
 function Card({ title, value }) {
   return (
-    <div className="rounded-xl bg-white p-4 shadow">
+    <div className="rounded-3xl bg-white p-4 shadow">
       <p className="text-xs text-slate-500">{title}</p>
       <p className="mt-2 text-2xl font-semibold text-brand-700">{value}</p>
     </div>

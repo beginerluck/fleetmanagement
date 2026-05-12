@@ -27,7 +27,7 @@ export default function DriverDashboard() {
     <div className="mx-auto max-w-3xl space-y-4 p-4">
       <div className="rounded-xl bg-white p-4 shadow">
         <h2 className="text-xl font-semibold">Hi, {user?.name}</h2>
-        <p className="text-sm text-slate-500">{new Date().toLocaleDateString()}</p>
+        <p className="text-sm text-slate-500">{new Date().toLocaleDateString('en-AU')}</p>
       </div>
 
       <div className="rounded-xl bg-white p-4 shadow">
@@ -38,7 +38,7 @@ export default function DriverDashboard() {
               {activeBooking.vehicle?.make} {activeBooking.vehicle?.model} — {activeBooking.vehicle?.registration_number}
             </p>
             <p>
-              {new Date(activeBooking.date_from).toLocaleTimeString()} - {new Date(activeBooking.date_to).toLocaleTimeString()}
+              {new Date(activeBooking.date_from).toLocaleTimeString('en-AU')} - {new Date(activeBooking.date_to).toLocaleTimeString('en-AU')}
             </p>
             <Link className="mt-2 inline-block rounded bg-brand-500 px-3 py-2 text-white" to="/driver/scan">
               START TRIP
@@ -55,7 +55,7 @@ export default function DriverDashboard() {
           {upcoming.length === 0 && <li className="text-slate-500">No upcoming bookings.</li>}
           {upcoming.map((booking) => (
             <li key={booking.id} className="rounded border p-2">
-              {booking.vehicle?.registration_number} — {new Date(booking.date_from).toLocaleString()}
+              {booking.vehicle?.registration_number} — {new Date(booking.date_from).toLocaleString('en-AU')}
             </li>
           ))}
         </ul>

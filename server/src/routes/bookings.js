@@ -51,7 +51,8 @@ router.get('/', requireAuth, async (req, res, next) => {
     } = req.query
 
     const where = {}
-
+    if (req.user.role === 'driver') where.driver_id = req.user.id
+    else if (req.query.driverId) where.driver_id = req.query.driverId
     if (date) {
       const startOfDay = parseDate(`${date}T00:00:00`)
       const endOfDay = parseDate(`${date}T23:59:59`)

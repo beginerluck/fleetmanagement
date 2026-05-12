@@ -15,4 +15,11 @@ Trip.belongsTo(Vehicle, { foreignKey: 'vehicle_id', as: 'vehicle' })
 User.hasMany(Trip, { foreignKey: 'driver_id' })
 Trip.belongsTo(User, { foreignKey: 'driver_id', as: 'driver' })
 
+Vehicle.hasMany(FuelRecord, { foreignKey: 'vehicle_id' })
+FuelRecord.belongsTo(Vehicle, { foreignKey: 'vehicle_id', as: 'vehicle' })
+User.hasMany(FuelRecord, { foreignKey: 'driver_id' })
+FuelRecord.belongsTo(User, { foreignKey: 'driver_id', as: 'driver' })
+Trip.hasMany(FuelRecord, { foreignKey: 'trip_id' })
+FuelRecord.belongsTo(Trip, { foreignKey: 'trip_id', as: 'trip' })
+
 module.exports = { User, Vehicle, Booking, Trip, FuelRecord, Compliance }
