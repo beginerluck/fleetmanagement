@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../../api/api'
 
@@ -13,6 +13,7 @@ export default function FuelUpload() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [lockedByTrip, setLockedByTrip] = useState(false)
+  const redirectTimeoutRef = useRef(null)
   const [context, setContext] = useState({ activeTrip: null, upcomingBooking: null })
   const [form, setForm] = useState({
     vehicle_id: '',
@@ -73,6 +74,10 @@ export default function FuelUpload() {
       }
     }
     load()
+
+    return () => {
+      if (redirectTimeoutRef.current) clearTimeout(redirectTimeoutRef.current)
+    }
   }, [])
 
   const onSubmit = async (event) => {
@@ -94,7 +99,8 @@ export default function FuelUpload() {
       const { data } = await api.post('/fuel-records', payload)
       if (!data.success) throw new Error(data.message || 'Unable to save fuel record')
       setSuccess('Fuel receipt saved successfully.')
-      setTimeout(() => navigate('/driver/dashboard'), SUCCESS_REDIRECT_DELAY_MILLISECONDS)
+      if (redirectTimeoutRef.current) clearTimeout(redirectTimeoutRef.current)
+      redirectTimeoutRef.current = setTimeout(() => navigate('/driver/dashboard'), SUCCESS_REDIRECT_DELAY_MILLISECONDS)
     } catch (saveError) {
       setError(saveError.response?.data?.message || saveError.message || 'Unable to save fuel record')
     } finally {

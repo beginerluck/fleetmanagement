@@ -21,7 +21,7 @@ router.get('/active-context', requireAuth, requireRole(['driver']), async (req, 
     const upcomingBooking = await Booking.findOne({
       where: {
         driver_id: req.user.id,
-        date_to: {
+        date_from: {
           [Op.gte]: new Date(),
         },
       },
