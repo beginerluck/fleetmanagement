@@ -11,6 +11,7 @@ const Booking = sequelize.define(
     date_to: { type: DataTypes.DATE, allowNull: false },
     purpose: DataTypes.STRING(255),
     usage_type: { type: DataTypes.STRING(10), defaultValue: 'business' },
+    cost_centre: DataTypes.STRING(100),
     status: { type: DataTypes.STRING(20), defaultValue: 'pending' },
   },
   { tableName: 'bookings', underscored: true, timestamps: false },

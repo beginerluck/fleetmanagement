@@ -1,4 +1,5 @@
 import Navbar from '../shared/Navbar'
+import { Link } from 'react-router-dom'
 
 const navItems = ['Calendar', 'Fleet', 'Compliance', 'Fuel', 'Reports', 'Alerts']
 
@@ -10,7 +11,13 @@ export default function ManagementDashboard() {
         <aside className="rounded-xl bg-white p-4 shadow">
           <ul className="space-y-2">
             {navItems.map((item) => (
-              <li key={item} className="rounded-lg px-3 py-2 text-sm hover:bg-brand-50">{item}</li>
+              <li key={item} className="rounded-lg px-3 py-2 text-sm hover:bg-brand-50">
+                {item === 'Calendar' ? (
+                  <Link className="font-semibold text-brand-700" to="/dashboard/calendar">{item}</Link>
+                ) : (
+                  item
+                )}
+              </li>
             ))}
           </ul>
         </aside>

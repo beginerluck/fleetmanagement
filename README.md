@@ -71,3 +71,10 @@ Frontend runs on `http://localhost:5173`.
 - `GET /api/trips/:id`
 - `GET /api/bookings?date=YYYY-MM-DD`
 - `POST /api/bookings`
+- `GET /api/bookings?dateFrom=&dateTo=&vehicleId=&driverId=&status=&usageType=`
+- `GET /api/bookings/drivers`
+- `GET /api/bookings/availability?date_from=&date_to=`
+- `PUT /api/bookings/:id`
+- `PUT /api/bookings/:id/approve`
+- `PUT /api/bookings/:id/reject`
+- `DELETE /api/bookings/:id`
