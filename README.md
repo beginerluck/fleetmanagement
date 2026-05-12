@@ -71,3 +71,5 @@ Frontend runs on `http://localhost:5173`.
 - `GET /api/trips/:id`
 - `GET /api/bookings?date=YYYY-MM-DD`
 - `POST /api/bookings`
+- `GET /api/driver/active-context`
+- `POST /api/fuel-records`

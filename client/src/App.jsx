@@ -4,6 +4,7 @@ import DriverDashboard from './components/driver/DriverDashboard'
 import ScanTrip from './components/driver/ScanTrip'
 import TripConfirm from './components/driver/TripConfirm'
 import ActiveTrip from './components/driver/ActiveTrip'
+import FuelUpload from './components/driver/FuelUpload'
 import ManagementDashboard from './components/management/ManagementDashboard'
 import ProtectedRoute from './components/shared/ProtectedRoute'
 import RoleRoute from './components/shared/RoleRoute'
@@ -22,6 +23,7 @@ export default function App() {
             <Route path="/driver/scan" element={<ScanTrip />} />
             <Route path="/driver/trip/confirm" element={<TripConfirm />} />
             <Route path="/driver/trip/:id" element={<ActiveTrip />} />
+            <Route path="/driver/fuel" element={<FuelUpload />} />
           </Route>
 
           <Route element={<RoleRoute roles={['manager', 'admin']} />}>

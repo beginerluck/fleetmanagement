@@ -9,6 +9,8 @@ const authRoutes = require('./routes/auth')
 const vehicleRoutes = require('./routes/vehicles')
 const tripRoutes = require('./routes/trips')
 const bookingRoutes = require('./routes/bookings')
+const driverRoutes = require('./routes/driver')
+const fuelRecordRoutes = require('./routes/fuelRecords')
 
 const app = express()
 const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173')
@@ -48,6 +50,8 @@ app.use('/api/auth', authLimiter, authRoutes)
 app.use('/api/vehicles', vehicleRoutes)
 app.use('/api/trips', tripRoutes)
 app.use('/api/bookings', bookingRoutes)
+app.use('/api/driver', driverRoutes)
+app.use('/api/fuel-records', fuelRecordRoutes)
 
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err)
