@@ -190,9 +190,11 @@ function buildCsv(records) {
 
 async function removeReceiptFile(receiptUrl) {
   if (!receiptUrl) return
+  const uploadsDirectory = path.join(__dirname, '..', '..', 'uploads', 'fuel-receipts')
   const fileName = path.basename(receiptUrl)
   if (!/^receipt-\d+-[a-z0-9]+\.(jpe?g|png|pdf)$/i.test(fileName)) return
-  const filePath = path.join(__dirname, '..', '..', 'uploads', 'fuel-receipts', fileName)
+  const filePath = path.resolve(uploadsDirectory, fileName)
+  if (!filePath.startsWith(path.resolve(uploadsDirectory) + path.sep)) return
   await fs.promises.unlink(filePath).catch(() => {})
 }
 
@@ -267,8 +269,9 @@ router.post('/', requireAuth, fuelReceiptUpload.single('receipt'), async (req, r
 
 router.get('/summary', requireAuth, async (req, res, next) => {
   try {
-    const month = Math.max(Number(req.query.month) || new Date().getMonth() + 1, 1)
-    const year = Math.max(Number(req.query.year) || new Date().getFullYear(), 2000)
+    const currentYear = new Date().getFullYear()
+    const month = Math.min(Math.max(Number(req.query.month) || new Date().getMonth() + 1, 1), 12)
+    const year = Math.min(Math.max(Number(req.query.year) || currentYear, 2000), currentYear + 1)
     const dateFrom = `${year}-${`${month}`.padStart(2, '0')}-01`
     const endDate = new Date(year, month, 0)
     const dateTo = `${year}-${`${month}`.padStart(2, '0')}-${`${endDate.getDate()}`.padStart(2, '0')}`
