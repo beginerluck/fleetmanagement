@@ -8,6 +8,7 @@ import {
   costCentreOptions,
   formatAuDate,
   formatAudCurrency,
+  formatVehicleDisplay,
   fuelTypeOptions,
 } from '../../utils/fuel'
 
@@ -255,7 +256,7 @@ export default function FuelUpload() {
                 <option value="">Select vehicle</option>
                 {vehicles.map((vehicle) => (
                   <option key={vehicle.id} value={vehicle.id}>
-                    {vehicle.registration_number} — {vehicle.make} {vehicle.model}
+                    {formatVehicleDisplay(vehicle)}
                   </option>
                 ))}
               </select>
@@ -335,12 +336,12 @@ export default function FuelUpload() {
               {receiptFile?.type === 'application/pdf' ? (
                 <div className="flex h-full min-h-40 items-center justify-center rounded-xl bg-white text-sm text-slate-600">📄 PDF receipt</div>
               ) : (
-                <img src={safePreviewUrl} alt="Receipt thumbnail" className="h-full max-h-56 w-full rounded-xl object-cover" />
+                <img src={encodeURI(safePreviewUrl)} alt="Receipt thumbnail" className="h-full max-h-56 w-full rounded-xl object-cover" />
               )}
             </div>
             <div className="rounded-2xl bg-slate-50 p-4">
               <dl className="grid gap-3 text-sm sm:grid-cols-2">
-                <SummaryItem label="Vehicle" value={selectedVehicle ? `${selectedVehicle.registration_number} — ${selectedVehicle.make} ${selectedVehicle.model}` : '—'} />
+                <SummaryItem label="Vehicle" value={formatVehicleDisplay(selectedVehicle)} />
                 <SummaryItem label="Trip" value={selectedTrip ? `${selectedTrip.destination || 'Trip'} — ${formatAuDate((selectedTrip.start_time || '').slice(0, 10))}` : 'Not linked'} />
                 <SummaryItem label="Date" value={formatAuDate(form.date)} />
                 <SummaryItem label="Litres" value={form.litres} />

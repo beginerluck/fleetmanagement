@@ -6,6 +6,7 @@ import {
   costCentreOptions,
   formatAuDate,
   formatAudCurrency,
+  formatVehicleDisplay,
   fuelTypeOptions,
   validateReceiptFile,
 } from '../../utils/fuel'
@@ -257,7 +258,7 @@ export default function FuelRecords() {
     if (!confirmed) return
     try {
       await api.delete(`/fuel/${record.id}`)
-      loadRecords(Math.min(pagination.page, pagination.totalPages), filters, sortBy, sortOrder)
+      loadRecords(Math.max(Math.min(pagination.page, pagination.totalPages), 1), filters, sortBy, sortOrder)
       loadSummary()
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Unable to delete the fuel record.')
@@ -295,7 +296,7 @@ export default function FuelRecords() {
           <SelectField label="Vehicle" value={draftFilters.vehicleId} onChange={(value) => setDraftFilters((current) => ({ ...current, vehicleId: value }))}>
             <option value="">All vehicles</option>
             {vehicleOptions.map((vehicle) => (
-              <option key={vehicle.id} value={vehicle.id}>{vehicle.registration_number} — {vehicle.make} {vehicle.model}</option>
+              <option key={vehicle.id} value={vehicle.id}>{formatVehicleDisplay(vehicle)}</option>
             ))}
           </SelectField>
           <SelectField label="Driver" value={draftFilters.driverId} onChange={(value) => setDraftFilters((current) => ({ ...current, driverId: value }))}>
@@ -364,7 +365,7 @@ export default function FuelRecords() {
               <SelectField label="Vehicle" value={formState.vehicle_id} error={formErrors.vehicle_id} onChange={(value) => setFormState((current) => ({ ...current, vehicle_id: value, trip_id: '' }))}>
                 <option value="">Select vehicle</option>
                 {vehicleOptions.map((vehicle) => (
-                  <option key={vehicle.id} value={vehicle.id}>{vehicle.registration_number} — {vehicle.make} {vehicle.model}</option>
+                  <option key={vehicle.id} value={vehicle.id}>{formatVehicleDisplay(vehicle)}</option>
                 ))}
               </SelectField>
               <SelectField label="Driver" value={formState.driver_id} error={formErrors.driver_id} onChange={(value) => setFormState((current) => ({ ...current, driver_id: value, trip_id: '' }))}>

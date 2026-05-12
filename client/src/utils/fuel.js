@@ -35,3 +35,10 @@ export function formatAudCurrency(value) {
 export function buildFuelReference(id) {
   return `FR-${`${id}`.padStart(6, '0')}`
 }
+
+export function formatVehicleDisplay(vehicle) {
+  if (!vehicle) return '—'
+  const registration = vehicle.registration_number || 'Unknown vehicle'
+  const description = [vehicle.make, vehicle.model].filter(Boolean).join(' ')
+  return description ? `${registration} — ${description}` : registration
+}

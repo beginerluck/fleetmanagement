@@ -85,7 +85,9 @@ async function ensureFuelRecordSchema() {
 async function start() {
   try {
     await sequelize.authenticate()
-    await sequelize.sync()
+    if (process.env.NODE_ENV !== 'production') {
+      await sequelize.sync()
+    }
     await ensureFuelRecordSchema()
     app.listen(PORT, () => {
       // eslint-disable-next-line no-console

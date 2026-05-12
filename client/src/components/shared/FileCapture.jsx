@@ -6,6 +6,7 @@ function dataUrlToFile(dataUrl) {
   const [header, body] = dataUrl.split(',')
   const mimeMatch = header.match(/data:(.*?);base64/)
   const mimeType = mimeMatch?.[1] || 'image/jpeg'
+  const extension = mimeType === 'image/png' ? 'png' : 'jpg'
   const binary = window.atob(body)
   const bytes = new Uint8Array(binary.length)
 
@@ -13,7 +14,7 @@ function dataUrlToFile(dataUrl) {
     bytes[index] = binary.charCodeAt(index)
   }
 
-  return new File([bytes], `receipt-${Date.now()}.jpg`, { type: mimeType })
+  return new File([bytes], `receipt-${Date.now()}.${extension}`, { type: mimeType })
 }
 
 export default function FileCapture({ file, previewUrl, error, onFileSelect, showCamera = true }) {
@@ -136,7 +137,7 @@ export default function FileCapture({ file, previewUrl, error, onFileSelect, sho
           {file.type === 'application/pdf' ? (
             <div className="mt-4 rounded-xl bg-slate-100 p-6 text-center text-sm text-slate-600">📄 PDF receipt selected</div>
           ) : (
-            <img src={safePreviewUrl} alt="Receipt preview" className="mt-4 max-h-72 w-full rounded-xl object-cover" />
+            <img src={encodeURI(safePreviewUrl)} alt="Receipt preview" className="mt-4 max-h-72 w-full rounded-xl object-cover" />
           )}
         </div>
       )}

@@ -1,4 +1,4 @@
-import { formatAuDate, formatAudCurrency } from '../../utils/fuel'
+import { formatAuDate, formatAudCurrency, formatVehicleDisplay } from '../../utils/fuel'
 
 const columns = [
   { key: 'date', label: 'Date' },
@@ -43,7 +43,7 @@ export default function FuelTable({ records, sortBy, sortOrder, onSort, onEdit, 
             records.map((record) => (
               <tr key={record.id} className="border-t border-slate-100 align-top">
                 <td className="whitespace-nowrap px-4 py-3">{formatAuDate(record.date)}</td>
-                <td className="px-4 py-3">{record.vehicle ? `${record.vehicle.registration_number} — ${record.vehicle.make} ${record.vehicle.model}` : '—'}</td>
+                <td className="px-4 py-3">{formatVehicleDisplay(record.vehicle)}</td>
                 <td className="whitespace-nowrap px-4 py-3">{record.driver?.name || '—'}</td>
                 <td className="whitespace-nowrap px-4 py-3">{Number(record.litres || 0).toFixed(2)}</td>
                 <td className="whitespace-nowrap px-4 py-3">{formatAudCurrency(record.cost)}</td>
