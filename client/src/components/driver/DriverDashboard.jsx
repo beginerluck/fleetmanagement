@@ -65,10 +65,8 @@ export default function DriverDashboard() {
         <Link className="rounded-lg bg-brand-500 p-3 text-center font-medium text-white" to="/driver/scan">
           📷 Scan to Start Trip
         </Link>
-        <button className="rounded-lg bg-white p-3 font-medium shadow">+ Book Vehicle</button>
-        <Link className="rounded-lg bg-white p-3 text-center font-medium shadow" to="/driver/fuel">
-          ⛽ Upload Fuel Receipt
-        </Link>
+        <Link className="rounded-lg bg-white p-3 text-center font-medium shadow" to="/driver/calendar">+ Book Vehicle</Link>
+        <button className="rounded-lg bg-white p-3 font-medium shadow">⛽ Upload Fuel Receipt</button>
       </div>
     </div>
   )

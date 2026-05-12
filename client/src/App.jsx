@@ -6,8 +6,8 @@ import TripConfirm from './components/driver/TripConfirm'
 import ActiveTrip from './components/driver/ActiveTrip'
 import FuelUpload from './components/driver/FuelUpload'
 import ManagementDashboard from './components/management/ManagementDashboard'
-import FuelRecords from './components/management/FuelRecords'
-import ManagementShell from './components/management/ManagementShell'
+import CalendarPage from './components/management/CalendarPage'
+import DriverCalendar from './components/driver/DriverCalendar'
 import ProtectedRoute from './components/shared/ProtectedRoute'
 import RoleRoute from './components/shared/RoleRoute'
 import NotFound from './pages/NotFound'
@@ -25,14 +25,12 @@ export default function App() {
             <Route path="/driver/scan" element={<ScanTrip />} />
             <Route path="/driver/trip/confirm" element={<TripConfirm />} />
             <Route path="/driver/trip/:id" element={<ActiveTrip />} />
-            <Route path="/driver/fuel" element={<FuelUpload />} />
+            <Route path="/driver/calendar" element={<DriverCalendar />} />
           </Route>
 
           <Route element={<RoleRoute roles={['manager', 'admin']} />}>
-            <Route path="/dashboard" element={<ManagementShell />}>
-              <Route index element={<ManagementDashboard />} />
-              <Route path="fuel" element={<FuelRecords />} />
-            </Route>
+            <Route path="/dashboard" element={<ManagementDashboard />} />
+            <Route path="/dashboard/calendar" element={<CalendarPage />} />
           </Route>
         </Route>
 
