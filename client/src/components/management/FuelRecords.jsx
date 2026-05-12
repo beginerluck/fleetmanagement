@@ -258,7 +258,8 @@ export default function FuelRecords() {
     if (!confirmed) return
     try {
       await api.delete(`/fuel/${record.id}`)
-      loadRecords(Math.max(Math.min(pagination.page, pagination.totalPages), 1), filters, sortBy, sortOrder)
+      const remainingPages = Math.max(Math.ceil((pagination.total - 1) / pagination.limit), 1)
+      loadRecords(Math.min(pagination.page, remainingPages), filters, sortBy, sortOrder)
       loadSummary()
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Unable to delete the fuel record.')

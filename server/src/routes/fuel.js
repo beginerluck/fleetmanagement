@@ -271,7 +271,7 @@ router.get('/summary', requireAuth, async (req, res, next) => {
   try {
     const currentYear = new Date().getFullYear()
     const month = Math.min(Math.max(Number(req.query.month) || new Date().getMonth() + 1, 1), 12)
-    const year = Math.min(Math.max(Number(req.query.year) || currentYear, 2000), currentYear + 1)
+    const year = Math.min(Math.max(Number(req.query.year) || currentYear, 2000), currentYear)
     const dateFrom = `${year}-${`${month}`.padStart(2, '0')}-01`
     const endDate = new Date(year, month, 0)
     const dateTo = `${year}-${`${month}`.padStart(2, '0')}-${`${endDate.getDate()}`.padStart(2, '0')}`
