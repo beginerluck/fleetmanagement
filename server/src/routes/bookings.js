@@ -15,7 +15,7 @@ function canManage(user) {
   return user && (user.role === 'manager' || user.role === 'admin')
 }
 
-function buildOverlapMessage(overlappingBooking) {
+function buildOverlapErrorMessage(overlappingBooking) {
   const registration = overlappingBooking?.vehicle?.registration_number || 'selected vehicle'
   const from = new Date(overlappingBooking.date_from).toLocaleString('en-AU')
   const to = new Date(overlappingBooking.date_to).toLocaleString('en-AU')
@@ -211,7 +211,7 @@ router.post('/', requireAuth, async (req, res, next) => {
     })
 
     if (overlappingBooking) {
-      return res.status(409).json({ success: false, message: buildOverlapMessage(overlappingBooking) })
+      return res.status(409).json({ success: false, message: buildOverlapErrorMessage(overlappingBooking) })
     }
 
     const booking = await Booking.create({
@@ -272,7 +272,7 @@ router.put('/:id', requireAuth, async (req, res, next) => {
     })
 
     if (overlappingBooking) {
-      return res.status(409).json({ success: false, message: buildOverlapMessage(overlappingBooking) })
+      return res.status(409).json({ success: false, message: buildOverlapErrorMessage(overlappingBooking) })
     }
 
     booking.vehicle_id = nextVehicleId

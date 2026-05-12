@@ -10,6 +10,7 @@ import BookingModal from './BookingModal'
 import NewBookingModal from './NewBookingModal'
 
 const viewLabels = ['month', 'week', 'day']
+const SKELETON_ITEM_COUNT = 14
 
 const vehiclePalette = [
   'bg-blue-600',
@@ -361,7 +362,7 @@ function LoadingSkeleton() {
     <div className="rounded-xl bg-white p-4 shadow">
       <div className="mb-3 h-5 w-48 animate-pulse rounded bg-slate-200" />
       <div className="grid grid-cols-7 gap-2">
-        {Array.from({ length: 14 }).map((_, index) => (
+        {Array.from({ length: SKELETON_ITEM_COUNT }).map((_, index) => (
           <div key={String(index)} className="h-20 animate-pulse rounded bg-slate-100" />
         ))}
       </div>
