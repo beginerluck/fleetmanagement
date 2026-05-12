@@ -3,7 +3,6 @@ const { Op } = require('sequelize')
 const { Booking, Vehicle, User } = require('../models')
 const { requireAuth, requireRole } = require('../middleware/auth')
 
-const ACTIVE_BOOKING_STATUSES = ['pending', 'approved', 'active', 'completed']
 const router = express.Router()
 
 function parseDate(value) {

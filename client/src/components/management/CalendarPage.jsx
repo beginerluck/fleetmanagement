@@ -154,7 +154,7 @@ export default function CalendarPage() {
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <h3 className="text-lg font-semibold">
                 {currentDate.toLocaleDateString('en-AU', {
-                  month: view === 'day' ? 'long' : 'long',
+                  month: 'long',
                   year: 'numeric',
                   day: view === 'day' ? 'numeric' : undefined,
                 })}
