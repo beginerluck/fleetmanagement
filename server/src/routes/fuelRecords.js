@@ -36,7 +36,8 @@ router.post('/', requireAuth, async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'vehicle_id is required' })
     }
 
-    const date = req.body.date || new Date().toISOString().slice(0, 10)
+    const date = req.body.date
+    if (!date) return res.status(400).json({ success: false, message: 'date is required' })
     const litres = req.body.litres === undefined || req.body.litres === '' ? null : Number(req.body.litres)
     const cost = req.body.cost === undefined || req.body.cost === '' ? null : Number(req.body.cost)
     const odometer_reading =
