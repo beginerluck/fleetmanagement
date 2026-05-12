@@ -15,6 +15,13 @@ function canManage(user) {
   return user && (user.role === 'manager' || user.role === 'admin')
 }
 
+function buildOverlapMessage(overlappingBooking) {
+  const registration = overlappingBooking?.vehicle?.registration_number || 'selected vehicle'
+  const from = new Date(overlappingBooking.date_from).toLocaleString('en-AU')
+  const to = new Date(overlappingBooking.date_to).toLocaleString('en-AU')
+  return `Vehicle ${registration} is already booked from ${from} to ${to}`
+}
+
 async function findOverlappingBooking({ vehicleId, dateFrom, dateTo, excludeId }) {
   return Booking.findOne({
     where: {
@@ -186,7 +193,7 @@ router.post('/', requireAuth, async (req, res, next) => {
     const parsedDateTo = parseDate(date_to)
 
     if (!parsedDateFrom || !parsedDateTo || !Number.isInteger(parsedVehicleId) || !Number.isInteger(parsedDriverId)) {
-      return res.status(400).json({ success: false, message: 'vehicle_id, driver_id, date_from and date_to are required' })
+      return res.status(400).json({ success: false, message: 'vehicle_id, driver_id, date_from and date_to are required and must be valid' })
     }
 
     if (parsedDateTo <= parsedDateFrom) {
@@ -204,7 +211,7 @@ router.post('/', requireAuth, async (req, res, next) => {
     })
 
     if (overlappingBooking) {
-      return res.status(409).json({ success: false, message: 'Vehicle already booked for this time' })
+      return res.status(409).json({ success: false, message: buildOverlapMessage(overlappingBooking) })
     }
 
     const booking = await Booking.create({
@@ -265,7 +272,7 @@ router.put('/:id', requireAuth, async (req, res, next) => {
     })
 
     if (overlappingBooking) {
-      return res.status(409).json({ success: false, message: 'Vehicle already booked for this time' })
+      return res.status(409).json({ success: false, message: buildOverlapMessage(overlappingBooking) })
     }
 
     booking.vehicle_id = nextVehicleId
