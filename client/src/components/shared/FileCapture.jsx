@@ -59,6 +59,7 @@ export default function FileCapture({ file, previewUrl, error, onFileSelect, sho
   }
 
   const activeError = captureError || error
+  const safePreviewUrl = previewUrl?.startsWith('blob:') ? previewUrl : ''
 
   return (
     <div className="space-y-4">
@@ -135,7 +136,7 @@ export default function FileCapture({ file, previewUrl, error, onFileSelect, sho
           {file.type === 'application/pdf' ? (
             <div className="mt-4 rounded-xl bg-slate-100 p-6 text-center text-sm text-slate-600">📄 PDF receipt selected</div>
           ) : (
-            <img src={previewUrl} alt="Receipt preview" className="mt-4 max-h-72 w-full rounded-xl object-cover" />
+            <img src={safePreviewUrl} alt="Receipt preview" className="mt-4 max-h-72 w-full rounded-xl object-cover" />
           )}
         </div>
       )}

@@ -82,6 +82,7 @@ export default function FuelUpload() {
     () => trips.filter((trip) => String(trip.vehicle_id) === String(form.vehicle_id)),
     [form.vehicle_id, trips],
   )
+  const safePreviewUrl = previewUrl?.startsWith('blob:') ? previewUrl : ''
 
   const handleFileSelect = (file, errorMessage) => {
     setReceiptFile(file)
@@ -334,7 +335,7 @@ export default function FuelUpload() {
               {receiptFile?.type === 'application/pdf' ? (
                 <div className="flex h-full min-h-40 items-center justify-center rounded-xl bg-white text-sm text-slate-600">📄 PDF receipt</div>
               ) : (
-                <img src={previewUrl} alt="Receipt thumbnail" className="h-full max-h-56 w-full rounded-xl object-cover" />
+                <img src={safePreviewUrl} alt="Receipt thumbnail" className="h-full max-h-56 w-full rounded-xl object-cover" />
               )}
             </div>
             <div className="rounded-2xl bg-slate-50 p-4">

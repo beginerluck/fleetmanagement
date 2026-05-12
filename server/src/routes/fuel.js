@@ -190,7 +190,9 @@ function buildCsv(records) {
 
 async function removeReceiptFile(receiptUrl) {
   if (!receiptUrl) return
-  const filePath = path.join(__dirname, '..', '..', receiptUrl.replace(/^\/+/, ''))
+  const fileName = path.basename(receiptUrl)
+  if (!/^receipt-\d+-[a-z0-9]+\.(jpe?g|png|pdf)$/i.test(fileName)) return
+  const filePath = path.join(__dirname, '..', '..', 'uploads', 'fuel-receipts', fileName)
   await fs.promises.unlink(filePath).catch(() => {})
 }
 
