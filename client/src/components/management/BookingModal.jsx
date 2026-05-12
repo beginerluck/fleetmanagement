@@ -51,7 +51,7 @@ export default function BookingModal({ booking, onClose, onUpdated, onToast }) {
 
   const reject = async () => {
     try {
-      await api.put(`/bookings/${booking.id}/reject`, { reason: 'Rejected' })
+      await api.put(`/bookings/${booking.id}/reject`)
       onToast('Booking rejected')
       onUpdated()
       onClose()
