@@ -1,4 +1,5 @@
 const express = require('express')
+const { Op } = require('sequelize')
 const { Trip, Vehicle } = require('../models')
 const { requireAuth } = require('../middleware/auth')
 
@@ -9,10 +10,15 @@ router.post('/scan-vehicle', requireAuth, async (req, res, next) => {
     const plateText = (req.body.plateText || '').replace(/\s+/g, '').toUpperCase()
     if (!plateText) return res.status(400).json({ success: false, message: 'plateText is required' })
 
-    const vehicles = await Vehicle.findAll()
-    const best = vehicles.find((vehicle) =>
-      vehicle.registration_number.replace(/\s+/g, '').toUpperCase().includes(plateText),
-    ) || vehicles.find((vehicle) => plateText.includes(vehicle.registration_number.replace(/\s+/g, '').toUpperCase()))
+    const searchPattern = `%${plateText.split('').join('%')}%`
+    const best = await Vehicle.findOne({
+      where: {
+        registration_number: {
+          [Op.iLike]: searchPattern,
+        },
+      },
+      order: [['id', 'ASC']],
+    })
 
     if (!best) return res.status(404).json({ success: false, message: 'Vehicle not found for scanned text' })
     return res.json({ success: true, data: { vehicle: best } })
@@ -24,7 +30,17 @@ router.post('/scan-vehicle', requireAuth, async (req, res, next) => {
 router.post('/start', requireAuth, async (req, res, next) => {
   try {
     const { vehicleId, driverId, odometer_start, destination, purpose, usage_type, booking_id } = req.body
-    const vehicle = await Vehicle.findByPk(vehicleId)
+    const parsedVehicleId = Number(vehicleId)
+    const parsedDriverId = Number(driverId)
+    const parsedOdometerStart = Number(odometer_start)
+    if (!Number.isInteger(parsedVehicleId) || !Number.isInteger(parsedDriverId) || !Number.isFinite(parsedOdometerStart)) {
+      return res.status(400).json({
+        success: false,
+        message: 'vehicleId and driverId must be valid integers, and odometer_start must be a valid number',
+      })
+    }
+
+    const vehicle = await Vehicle.findByPk(parsedVehicleId)
     if (!vehicle) return res.status(404).json({ success: false, message: 'Vehicle not found' })
     if (vehicle.status !== 'available') {
       return res.status(400).json({ success: false, message: 'Vehicle is not available' })
@@ -32,15 +48,15 @@ router.post('/start', requireAuth, async (req, res, next) => {
 
     const trip = await Trip.create({
       booking_id,
-      vehicle_id: vehicleId,
-      driver_id: driverId,
-      odometer_start,
+      vehicle_id: parsedVehicleId,
+      driver_id: parsedDriverId,
+      odometer_start: parsedOdometerStart,
       destination,
       purpose,
       usage_type,
     })
 
-    await vehicle.update({ status: 'booked', odometer_current: odometer_start })
+    await vehicle.update({ status: 'booked', odometer_current: parsedOdometerStart })
 
     return res.status(201).json({ success: true, data: { trip } })
   } catch (error) {
@@ -54,11 +70,18 @@ router.put('/:id/end', requireAuth, async (req, res, next) => {
     if (!trip) return res.status(404).json({ success: false, message: 'Trip not found' })
 
     const { odometer_end, notes } = req.body
-    const distance_km = Math.max(0, Number(odometer_end) - Number(trip.odometer_start))
+    const parsedOdometerEnd = Number(odometer_end)
+    if (!Number.isFinite(parsedOdometerEnd)) {
+      return res.status(400).json({ success: false, message: 'odometer_end is required' })
+    }
+    if (parsedOdometerEnd < Number(trip.odometer_start)) {
+      return res.status(400).json({ success: false, message: 'odometer_end must be >= odometer_start' })
+    }
+    const distance_km = parsedOdometerEnd - Number(trip.odometer_start)
 
-    await trip.update({ odometer_end, notes, end_time: new Date(), distance_km })
+    await trip.update({ odometer_end: parsedOdometerEnd, notes, end_time: new Date(), distance_km })
     await Vehicle.update(
-      { status: 'available', odometer_current: odometer_end },
+      { status: 'available', odometer_current: parsedOdometerEnd },
       { where: { id: trip.vehicle_id } },
     )
 

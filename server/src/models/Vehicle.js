@@ -10,7 +10,7 @@ const Vehicle = sequelize.define(
     model: DataTypes.STRING(50),
     year: DataTypes.INTEGER,
     status: { type: DataTypes.STRING(20), defaultValue: 'available' },
-    odometer_current: { type: DataTypes.INTEGER, defaultValue: 0 },
+    odometer_current: { type: DataTypes.INTEGER, defaultValue: 0, validate: { min: 0 } },
     cost_centre: DataTypes.STRING(100),
   },
   { tableName: 'vehicles', underscored: true, timestamps: false },

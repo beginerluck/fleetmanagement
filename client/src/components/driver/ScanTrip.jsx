@@ -10,6 +10,14 @@ function cleanText(text) {
   return text.toUpperCase().replace(/[^A-Z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
+function getScanErrorMessage(error) {
+  if (error.response?.status === 404) return 'Vehicle not found in system'
+  if (error.message?.includes('recognize') || error.message?.includes('read plate')) {
+    return 'OCR failed to read plate'
+  }
+  return error.response?.data?.message || error.message || 'Could not process scan'
+}
+
 export default function ScanTrip() {
   const webcamRef = useRef(null)
   const navigate = useNavigate()
@@ -41,7 +49,7 @@ export default function ScanTrip() {
       const result = await Tesseract.recognize(imageSrc, 'eng')
       await processText(result.data.text)
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Could not read plate')
+      setError(getScanErrorMessage(err))
     } finally {
       setLoading(false)
     }
@@ -54,7 +62,7 @@ export default function ScanTrip() {
       setError('')
       await processText(manualText)
     } catch (err) {
-      setError(err.response?.data?.message || 'Could not read plate')
+      setError(getScanErrorMessage(err))
     } finally {
       setLoading(false)
     }
@@ -83,6 +91,12 @@ export default function ScanTrip() {
       <button onClick={capture} disabled={loading} className="mt-3 w-full rounded-lg bg-brand-500 py-2 font-semibold text-white">
         {loading ? 'Processing...' : '📷 CAPTURE'}
       </button>
+      {loading && (
+        <div className="mt-3 flex items-center justify-center gap-2 text-sm text-slate-600">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-brand-500" />
+          OCR in progress, please wait...
+        </div>
+      )}
       <div className="mt-4 rounded-lg bg-white p-3 shadow">
         <label className="text-sm font-medium">✍️ Enter Manually</label>
         <div className="mt-2 flex gap-2">

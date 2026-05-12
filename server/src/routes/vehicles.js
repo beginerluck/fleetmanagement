@@ -42,7 +42,20 @@ router.get('/:id', requireAuth, async (req, res, next) => {
 
 router.post('/', requireAuth, requireRole(['admin']), async (req, res, next) => {
   try {
-    const vehicle = await Vehicle.create(req.body)
+    const registration = (req.body.registration_number || '').toString().trim().toUpperCase()
+    if (!registration) {
+      return res.status(400).json({ success: false, message: 'registration_number is required' })
+    }
+
+    const vehicle = await Vehicle.create({
+      registration_number: registration,
+      make: req.body.make?.toString().trim() || null,
+      model: req.body.model?.toString().trim() || null,
+      year: req.body.year || null,
+      status: req.body.status || 'available',
+      odometer_current: req.body.odometer_current || 0,
+      cost_centre: req.body.cost_centre?.toString().trim() || null,
+    })
     return res.status(201).json({ success: true, data: { vehicle } })
   } catch (error) {
     return next(error)

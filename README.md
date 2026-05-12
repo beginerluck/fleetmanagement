@@ -24,6 +24,7 @@ Copy `server/.env.example` to `server/.env` and update values:
 - `DATABASE_URL`
 - `JWT_SECRET`
 - `PORT`
+- `CORS_ORIGINS` (comma-separated, defaults to `http://localhost:5173`)
 
 ### 3) Start PostgreSQL
 Create DB named `fleettrack` and ensure `DATABASE_URL` points to it.
