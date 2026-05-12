@@ -31,7 +31,7 @@ router.post('/start', requireAuth, async (req, res, next) => {
   try {
     const { vehicleId, driverId, odometer_start, destination, purpose, usage_type, booking_id } = req.body
     const parsedVehicleId = Number(vehicleId)
-    const parsedDriverId = Number(driverId)
+    const parsedDriverId = req.user.role === 'driver' ? req.user.id : Number(driverId)
     const parsedOdometerStart = Number(odometer_start)
     if (!Number.isInteger(parsedVehicleId) || !Number.isInteger(parsedDriverId) || !Number.isFinite(parsedOdometerStart)) {
       return res.status(400).json({
@@ -94,7 +94,9 @@ router.put('/:id/end', requireAuth, async (req, res, next) => {
 router.get('/', requireAuth, async (req, res, next) => {
   try {
     const where = {}
-    if (req.query.driverId) where.driver_id = req.query.driverId
+    if (req.user.role === 'driver') where.driver_id = req.user.id
+    else if (req.query.driverId) where.driver_id = req.query.driverId
+    if (req.query.vehicleId) where.vehicle_id = req.query.vehicleId
     const trips = await Trip.findAll({ where, order: [['id', 'DESC']] })
     return res.json({ success: true, data: { trips } })
   } catch (error) {
@@ -106,6 +108,9 @@ router.get('/:id', requireAuth, async (req, res, next) => {
   try {
     const trip = await Trip.findByPk(req.params.id, { include: [{ model: Vehicle, as: 'vehicle' }] })
     if (!trip) return res.status(404).json({ success: false, message: 'Trip not found' })
+    if (req.user.role === 'driver' && trip.driver_id !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Forbidden' })
+    }
     return res.json({ success: true, data: { trip } })
   } catch (error) {
     return next(error)

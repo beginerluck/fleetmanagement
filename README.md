@@ -71,3 +71,12 @@ Frontend runs on `http://localhost:5173`.
 - `GET /api/trips/:id`
 - `GET /api/bookings?date=YYYY-MM-DD`
 - `POST /api/bookings`
+- `POST /api/fuel`
+- `GET /api/fuel`
+- `GET /api/fuel/:id`
+- `PUT /api/fuel/:id`
+- `DELETE /api/fuel/:id`
+- `GET /api/fuel/summary?month=MM&year=YYYY`
+- `GET /api/fuel/export`
+
+Uploaded fuel receipts are stored under `server/uploads/fuel-receipts/` and served from `/uploads/fuel-receipts/`.
