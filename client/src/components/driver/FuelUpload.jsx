@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import api from '../../api/api'
 
 const today = new Date().toISOString().slice(0, 10)
+const SUCCESS_REDIRECT_DELAY_MS = 900
 
 export default function FuelUpload() {
   const navigate = useNavigate()
@@ -93,7 +94,7 @@ export default function FuelUpload() {
       const { data } = await api.post('/fuel-records', payload)
       if (!data.success) throw new Error(data.message || 'Unable to save fuel record')
       setSuccess('Fuel receipt saved successfully.')
-      setTimeout(() => navigate('/driver/dashboard'), 900)
+      setTimeout(() => navigate('/driver/dashboard'), SUCCESS_REDIRECT_DELAY_MS)
     } catch (saveError) {
       setError(saveError.response?.data?.message || saveError.message || 'Unable to save fuel record')
     } finally {
